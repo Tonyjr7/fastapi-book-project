@@ -12,21 +12,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        run: |
-          echo "Repository checked out"
-          ls -l
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-        run: |
-          echo "Python version set up"
-          python --version
 
       - name: Install dependencies
         run: |
-          echo "Installing dependencies"
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
@@ -34,17 +27,16 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-        run: |
-          echo "SSH Key set up"
-          ls -l ~/.ssh
 
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            echo "Connected to EC2"
             cd /home/ubuntu/fastapi-book-project
             git pull origin main
+            # Activate the virtual environment
             source venv/bin/activate
+            # Kill the existing uvicorn process
             pkill -f 'uvicorn main:app'
-            nohup python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload &
+            # Restart the app with uvicorn inside the virtual environment
+            python3 -m uvicorn main:app
           EOF

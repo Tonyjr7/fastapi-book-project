@@ -1,8 +1,9 @@
+```markdown
 # FastAPI Book Management API
 
 ## Overview
 
-This project is a RESTful API built with FastAPI for managing a book collection. It provides comprehensive CRUD (Create, Read, Update, Delete) operations for books with proper error handling, input validation, and documentation.
+This project is a RESTful API built with FastAPI for managing a book collection. It provides comprehensive CRUD (Create, Read, Update, Delete) operations for books, along with proper error handling, input validation, and auto-generated documentation.
 
 ## Features
 
@@ -66,7 +67,7 @@ source venv/bin/activate  # If On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Running the Application
+## Running the Application Locally
 
 1. Start the server:
 
@@ -76,8 +77,8 @@ uvicorn main:app
 
 2. Access the API documentation:
 
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+- ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
 ## API Endpoints
 
@@ -116,6 +117,8 @@ Available genres:
 
 ## Running Tests
 
+To run the tests:
+
 ```bash
 pytest
 ```
@@ -128,6 +131,29 @@ The API includes proper error handling for:
 - Invalid book IDs
 - Invalid genre types
 - Malformed requests
+
+## Deployment
+
+This project has been deployed to an AWS EC2 instance using GitHub Actions. Here's a summary of the deployment process:
+
+1. **EC2 Setup:**
+   - The server is running on an Ubuntu EC2 instance.
+   - SSH keys are used for secure communication.
+
+2. **GitHub Actions:**
+   - The deployment is automated using GitHub Actions.
+   - The deployment YAML file is located under `.github/workflows/deploy.yml`.
+   - The pipeline performs the following steps:
+     - Check out the code.
+     - Set up Python.
+     - Install dependencies from `requirements.txt`.
+     - Set up SSH keys for accessing the EC2 instance.
+     - Pull the latest code from the `main` branch on the EC2 instance.
+     - Restart the FastAPI application using `uvicorn`.
+
+3. **Deployment Steps in GitHub Actions:**
+   - When a push is made to the `main` branch, the deployment pipeline is triggered.
+   - It SSHs into the EC2 instance, navigates to the project directory, activates the virtual environment, kills any existing `uvicorn` processes, and restarts the FastAPI application using `uvicorn main:app`.
 
 ## Contributing
 
@@ -144,3 +170,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 For support, please open an issue in the GitHub repository.
+```
+
+This version includes a **Deployment** section, which explains the deployment process and how it was set up with GitHub Actions and AWS EC2.

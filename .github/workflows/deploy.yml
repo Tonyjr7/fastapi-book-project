@@ -1,30 +1,42 @@
-name: Deployment Pipeline
+name: Deploy to AWS EC2
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
+  deploy:
+    runs-on: ubuntu-latest
 
-            - name: Set up Python
-              uses: actions/setup-python@v4
-              with:
-                  python-version: "3.12"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-            - name: Install dependencies
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install -r requirements.txt
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
 
-            - name: Deploy
-              uses: johnbeynon/render-deploy-action@v0.0.8
-              with:
-                service-id: ${{ secrets.SERVICE_ID }}
-                api-key: ${{ secrets.RENDER_API_KEY}}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set up SSH keys
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            cd /home/ubuntu/fastapi-book-project
+            git pull origin main
+            # Activate the virtual environment
+            source venv/bin/activate
+            # Kill the existing uvicorn process
+            pkill -f 'uvicorn main:app'
+            # Restart the app with uvicorn inside the virtual environment
+            nohup python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload & 
+          EOF

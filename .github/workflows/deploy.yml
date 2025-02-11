@@ -38,5 +38,5 @@ jobs:
             # Kill the existing uvicorn process
             pkill -f 'uvicorn main:app'
             # Restart the app with uvicorn inside the virtual environment
-            python3 -m uvicorn main:app- 
+            python3 -m uvicorn main:app
           EOF

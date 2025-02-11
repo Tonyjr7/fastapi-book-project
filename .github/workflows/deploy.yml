@@ -33,10 +33,13 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             cd /home/ubuntu/fastapi-book-project
             git pull origin main
+            
             # Activate the virtual environment
             source venv/bin/activate
-            # Kill the existing uvicorn process
-            pkill -f 'uvicorn main:app'
-            # Restart the app with uvicorn inside the virtual environment
-            python3 -m uvicorn main:app
+            
+            # Kill existing Uvicorn process if running
+            pkill -f 'uvicorn main:app' || true
+            
+            # Start Uvicorn in the background on 127.0.0.1:8000
+            nohup python3 -m uvicorn main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
           EOF
